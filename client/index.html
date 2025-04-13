@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puissance 4 Online</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-container">
+        <h1>Puissance 4 Online</h1>
+        <div class="form-group">
+            <input type="text" id="username" placeholder="Nom d'utilisateur">
+            <button id="login-btn">Connexion</button>
+        </div>
+    </div>
+    
+    <div id="lobby-container" class="hidden">
+        <h2>Lobby</h2>
+        <div class="player-info">
+            <p>Joueur: <span id="player-name"></span></p>
+            <p>Rang: <span id="player-rank"></span></p>
+            <p>Score ELO: <span id="player-elo"></span></p>
+        </div>
+        <button id="find-match-btn">Rechercher un match</button>
+        <div id="match-status"></div>
+    </div>
+    
+    <div id="game-container" class="hidden">
+        <div class="game-info">
+            <div class="player player1">
+                <span id="player1-name"></span>
+                <span id="player1-rank"></span>
+            </div>
+            <div class="vs">VS</div>
+            <div class="player player2">
+                <span id="player2-name"></span>
+                <span id="player2-rank"></span>
+            </div>
+        </div>
+        
+        <div id="board-container">
+            <div id="column-selectors">
+                <div class="column-selector" data-column="0"></div>
+                <div class="column-selector" data-column="1"></div>
+                <div class="column-selector" data-column="2"></div>
+                <div class="column-selector" data-column="3"></div>
+                <div class="column-selector" data-column="4"></div>
+                <div class="column-selector" data-column="5"></div>
+                <div class="column-selector" data-column="6"></div>
+            </div>
+            <div id="board"></div>
+        </div>
+        
+        <div class="game-controls">
+            <div id="turn-indicator"></div>
+            <button id="forfeit-btn">Abandonner</button>
+        </div>
+    </div>
+    
+    <div id="game-over-container" class="hidden">
+        <h2>Partie terminée</h2>
+        <p id="winner-message"></p>
+        <p id="rank-change"></p>
+        <button id="back-to-lobby-btn">Retour au lobby</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+    <script src="matchmaking.js"></script>
+</body>
+</html>
