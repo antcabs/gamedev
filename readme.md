@@ -45,23 +45,24 @@ npm run dev
 
 ## Structure du projet
 
-```
-|-- client/                 # Frontend
-|   |-- index.html          # Page HTML principale
-|   |-- style.css           # Styles CSS
-|   |-- game.js             # Logique du jeu côté client
-|   |-- matchmaking.js      # Logique de matchmaking côté client
+|-- client/                     # Frontend
+|   |-- index.html              # Page HTML principale
+|   |-- style.css               # Styles CSS 
+|   |-- auth.js                 # Nouveau: Logique d'authentification côté client
+|   |-- game.js                 # Logique du jeu côté client 
+|   |-- chat.js                 # Nouveau: Système de chat en partie
+|   |-- matchmaking.js          # Logique de matchmaking côté client
 |
-|-- server/                 # Backend
-|   |-- server.js           # Point d'entrée du serveur
-|   |-- game.js             # Logique du jeu côté serveur
-|   |-- matchmaking.js      # Système de matchmaking
-|   |-- database.js         # Couche d'accès aux données
-|   |-- rankSystem.js       # Système de classement ELO
+|-- server/                     # Backend
+|   |-- server.js               # Point d'entrée du serveur 
+|   |-- game.js                 # Logique du jeu côté serveur
+|   |-- matchmaking.js          # Système de matchmaking
+|   |-- database.js             # Couche d'accès aux données 
+|   |-- rankSystem.js           # Système de classement ELO
 |
-|-- package.json            # Configuration NPM
-|-- README.md               # Documentation
-```
+|-- package.json                # Configuration NPM
+|-- README.md                   # Documentation
+
 
 ## Système de classement
 
@@ -80,11 +81,9 @@ Le système de classement est basé sur l'algorithme ELO, utilisé dans les éch
 
 ## Fonctionnalités à venir
 
-- Système d'authentification
 - Historique des parties
 - Statistiques détaillées des joueurs
 - Mode spectateur
-- Chat en jeu
 
 ## Contribution
 
