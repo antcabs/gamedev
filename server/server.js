@@ -79,6 +79,8 @@ io.on('connection', (socket) => {
             socket.emit('login-error', { message: "Erreur lors de la connexion" });
         }
     });
+    
+    // Handle logout
     socket.on('logout', () => {
         console.log(`Déconnexion de l'utilisateur: ${socket.player ? socket.player.username : 'inconnu'}`);
         
@@ -193,6 +195,68 @@ io.on('connection', (socket) => {
         });
     });
     
+    // Gestionnaire pour obtenir l'historique des parties d'un joueur
+    socket.on('get-game-history', (data) => {
+        const { limit } = data || {};
+        
+        console.log(`Demande d'historique des parties pour ${socket.player ? socket.player.username : 'utilisateur inconnu'}`);
+        
+        if (!socket.player) {
+            socket.emit('game-history-error', { message: "Vous devez être connecté pour voir votre historique" });
+            return;
+        }
+        
+        try {
+            // Récupérer l'historique des parties du joueur
+            const gameHistory = db.getPlayerGameHistory(socket.player.id, limit || 10);
+            
+            console.log(`Envoi de ${gameHistory.length} parties d'historique à ${socket.player.username}`);
+            
+            // Envoyer l'historique au client
+            socket.emit('game-history', { games: gameHistory });
+        } catch (error) {
+            console.error(`Erreur lors de la récupération de l'historique:`, error);
+            socket.emit('game-history-error', { message: "Erreur lors de la récupération de l'historique" });
+        }
+    });
+    
+    // Gestionnaire pour obtenir les détails d'une partie spécifique
+    socket.on('get-game-details', (data) => {
+        const { gameId } = data;
+        
+        console.log(`Demande de détails pour la partie ${gameId}`);
+        
+        if (!socket.player) {
+            socket.emit('game-details-error', { message: "Vous devez être connecté pour voir les détails d'une partie" });
+            return;
+        }
+        
+        try {
+            // Vérifier que la partie appartient bien au joueur
+            const playerHistory = db.getPlayerGameHistory(socket.player.id);
+            const isPlayerGame = playerHistory.some(game => game.id === gameId);
+            
+            if (!isPlayerGame) {
+                socket.emit('game-details-error', { message: "Vous n'avez pas accès à cette partie" });
+                return;
+            }
+            
+            // Récupérer les détails de la partie
+            const gameDetails = db.getGameDetails(gameId);
+            
+            if (!gameDetails) {
+                socket.emit('game-details-error', { message: "Partie introuvable" });
+                return;
+            }
+            
+            // Envoyer les détails au client
+            socket.emit('game-details', { game: gameDetails });
+        } catch (error) {
+            console.error(`Erreur lors de la récupération des détails de la partie:`, error);
+            socket.emit('game-details-error', { message: "Erreur lors de la récupération des détails" });
+        }
+    });
+    
     // Handle forfeit
     socket.on('forfeit', () => {
         console.log(`${socket.player ? socket.player.username : 'Joueur inconnu'} abandonne la partie`);
@@ -292,6 +356,10 @@ function handleGameOver(game) {
         
         db.updatePlayerRating(p1.id, p1.elo + p1EloChange);
         db.updatePlayerRating(p2.id, p2.elo + p2EloChange);
+        
+        // Enregistrer la partie dans l'historique
+        const gameRecord = db.saveGameToHistory(game, p1EloChange, p2EloChange);
+        console.log(`Partie ${game.id} enregistrée dans l'historique`);
         
         // Get updated player data
         const updatedP1 = db.getPlayer(p1.id);
