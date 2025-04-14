@@ -1,184 +1,181 @@
-// Classe pour gérer le chat en jeu
-class GameChat {
-    constructor(gameContainer) {
-        this.gameContainer = gameContainer;
-        this.chatContainer = null;
-        this.messagesContainer = null;
-        this.chatInput = null;
-        this.chatSendBtn = null;
-        this.isInitialized = false;
-        this.currentGameId = null; // Stocker l'ID de la partie courante
-    }
-    
-    // Initialiser le chat
-    init(gameId) {
-        if (this.isInitialized) {
-            this.currentGameId = gameId; // Mettre à jour l'ID de la partie
-            return;
+// Utiliser la connexion socket déjà créée dans auth.js
+// const socket = io(); // Déjà défini dans auth.js
+
+// Variables globales (certaines sont déjà définies dans auth.js)
+// let currentPlayer = null; // Déjà défini dans auth.js
+let gameBoard = null;
+let currentTurn = null;
+let gameInProgress = false;
+
+// DOM Elements (certains sont déjà définis dans auth.js)
+// Elements déjà définis dans auth.js:
+// const loginContainer = document.getElementById('login-container');
+// const lobbyContainer = document.getElementById('lobby-container');
+// const gameContainer = document.getElementById('game-container');
+// const gameOverContainer = document.getElementById('game-over-container');
+// const playerNameSpan = document.getElementById('player-name');
+// const playerRankSpan = document.getElementById('player-rank');
+// const playerEloSpan = document.getElementById('player-elo');
+
+const findMatchBtn = document.getElementById('find-match-btn');
+const matchStatusDiv = document.getElementById('match-status');
+
+const player1NameSpan = document.getElementById('player1-name');
+const player1RankSpan = document.getElementById('player1-rank');
+const player2NameSpan = document.getElementById('player2-name');
+const player2RankSpan = document.getElementById('player2-rank');
+const boardDiv = document.getElementById('board');
+const turnIndicatorDiv = document.getElementById('turn-indicator');
+const forfeitBtn = document.getElementById('forfeit-btn');
+
+const winnerMessageP = document.getElementById('winner-message');
+const rankChangeP = document.getElementById('rank-change');
+const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
+
+// Matchmaking
+findMatchBtn.addEventListener('click', () => {
+    socket.emit('find-match');
+    findMatchBtn.disabled = true;
+    matchStatusDiv.textContent = 'Recherche d\'un adversaire...';
+});
+
+// Game
+document.querySelectorAll('.column-selector').forEach(column => {
+    column.addEventListener('click', (e) => {
+        if (gameInProgress && currentTurn === currentPlayer.id) {
+            const columnIndex = parseInt(e.target.dataset.column);
+            socket.emit('make-move', { column: columnIndex });
         }
-        
-        this.currentGameId = gameId; // Stocker l'ID de la partie
-        
-        // Cloner le template de chat
-        const template = document.getElementById('chat-template');
-        const chatElement = template.content.cloneNode(true);
-        
-        // Ajouter le chat au conteneur de jeu
-        this.gameContainer.appendChild(chatElement);
-        
-        // Récupérer les éléments du DOM
-        this.chatContainer = document.getElementById('chat-container');
-        this.messagesContainer = document.getElementById('chat-messages');
-        this.chatInput = document.getElementById('chat-input');
-        this.chatSendBtn = document.getElementById('chat-send');
-        
-        // Ajouter les écouteurs d'événements
-        this.chatSendBtn.addEventListener('click', () => this.sendMessage());
-        this.chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.sendMessage();
+    });
+});
+
+forfeitBtn.addEventListener('click', () => {
+    if (gameInProgress) {
+        socket.emit('forfeit');
+    }
+});
+
+backToLobbyBtn.addEventListener('click', () => {
+    gameOverContainer.classList.add('hidden');
+    lobbyContainer.classList.remove('hidden');
+    findMatchBtn.disabled = false;
+    matchStatusDiv.textContent = '';
+});
+
+// Render board
+function renderBoard() {
+    boardDiv.innerHTML = '';
+    
+    for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 7; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            
+            const value = gameBoard[row][col];
+            if (value === 1) {
+                cell.classList.add('player1');
+            } else if (value === 2) {
+                cell.classList.add('player2');
             }
-        });
-        
-        // Écouter les messages de chat entrants
-        socket.on('chat-message', (data) => {
-            this.receiveMessage(data);
-        });
-        
-        this.isInitialized = true;
-        
-        // Ajouter un message système
-        this.addSystemMessage("Chat initialisé. Vous pouvez discuter avec votre adversaire!");
-    }
-    
-    // Envoyer un message
-    sendMessage() {
-        const message = this.chatInput.value.trim();
-        
-        if (message && currentPlayer && this.currentGameId) {
-            console.log("Envoi du message:", message, "dans la partie:", this.currentGameId);
             
-            // Envoyer le message au serveur
-            socket.emit('send-chat', {
-                gameId: this.currentGameId,
-                message: message
-            });
-            
-            // Ajouter le message localement (optimiste)
-            this.addMessageToChat(currentPlayer.username, message, true);
-            
-            // Vider l'input
-            this.chatInput.value = '';
-        } else {
-            console.log("Impossible d'envoyer le message:", {
-                message: !!message,
-                currentPlayer: !!currentPlayer,
-                gameId: this.currentGameId
-            });
-            
-            if (!this.currentGameId) {
-                this.addSystemMessage("Erreur: ID de partie manquant");
-            }
+            boardDiv.appendChild(cell);
         }
-    }
-    
-    // Recevoir un message du serveur
-    receiveMessage(data) {
-        const { username, message } = data;
-        const isSelf = username === currentPlayer.username;
-        
-        // Ne pas afficher à nouveau nos propres messages (déjà ajoutés optimistiquement)
-        if (!isSelf) {
-            this.addMessageToChat(username, message, isSelf);
-        }
-    }
-    
-    // Ajouter un message système au chat
-    addSystemMessage(message) {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'chat-message system';
-        messageElement.textContent = message;
-        
-        this.messagesContainer.appendChild(messageElement);
-        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-    }
-    
-    // Ajouter un message à l'interface
-    addMessageToChat(username, message, isSelf) {
-        // Créer les éléments du message
-        const messageElement = document.createElement('div');
-        messageElement.className = `chat-message ${isSelf ? 'self' : 'other'}`;
-        
-        const usernameElement = document.createElement('div');
-        usernameElement.className = 'chat-username';
-        usernameElement.textContent = username;
-        
-        const textElement = document.createElement('div');
-        textElement.className = 'chat-text';
-        textElement.textContent = message;
-        
-        // Assembler le message
-        messageElement.appendChild(usernameElement);
-        messageElement.appendChild(textElement);
-        
-        // Ajouter au conteneur des messages
-        this.messagesContainer.appendChild(messageElement);
-        
-        // Faire défiler vers le bas
-        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-    }
-    
-    // Afficher le chat
-    show() {
-        if (!this.isInitialized) {
-            console.error("Le chat n'est pas initialisé");
-            return;
-        }
-        this.chatContainer.style.display = 'flex';
-    }
-    
-    // Masquer le chat
-    hide() {
-        if (this.chatContainer) {
-            this.chatContainer.style.display = 'none';
-        }
-    }
-    
-    // Vider le chat
-    clear() {
-        if (this.messagesContainer) {
-            this.messagesContainer.innerHTML = '';
-        }
-    }
-    
-    // Mettre à jour l'ID de la partie
-    updateGameId(gameId) {
-        this.currentGameId = gameId;
-        console.log("ID de partie mis à jour:", gameId);
     }
 }
 
-// Créer une instance du chat
-const gameChat = new GameChat(gameContainer);
+// Update turn indicator
+function updateTurnIndicator() {
+    if (currentTurn === currentPlayer.id) {
+        turnIndicatorDiv.textContent = 'Votre tour';
+        turnIndicatorDiv.classList.add('your-turn');
+    } else {
+        turnIndicatorDiv.textContent = 'Tour de l\'adversaire';
+        turnIndicatorDiv.classList.remove('your-turn');
+    }
+}
 
-// Initialiser le chat lorsqu'une partie commence
+// Socket event handlers
 socket.on('match-found', (data) => {
-    // Initialiser et afficher le chat avec l'ID de la partie
-    gameChat.clear();
-    gameChat.init(data.id); // Passer l'ID de la partie au chat
-    gameChat.show();
+    lobbyContainer.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
     
-    // Stocker également la référence du jeu dans l'objet socket
-    // pour que le serveur puisse l'utiliser pour identifier la partie
-    socket.game = { id: data.id };
+    gameInProgress = true;
+    gameBoard = data.board;
+    currentTurn = data.currentTurn;
+    
+    // S'assurer que l'objet socket.game est correctement défini
+    // C'est important pour que le serveur puisse identifier la partie lors des communications
+    socket.game = {
+        id: data.id,
+        players: data.players,
+        board: data.board,
+        currentTurn: data.currentTurn
+    };
+    
     console.log("Partie trouvée, ID:", data.id);
+    
+    // Set player info
+    const players = data.players;
+    const opponent = players.find(p => p.id !== currentPlayer.id);
+    
+    if (players[0].id === currentPlayer.id) {
+        player1NameSpan.textContent = currentPlayer.username;
+        player1RankSpan.textContent = currentPlayer.rank;
+        player2NameSpan.textContent = opponent.username;
+        player2RankSpan.textContent = opponent.rank;
+    } else {
+        player1NameSpan.textContent = opponent.username;
+        player1RankSpan.textContent = opponent.rank;
+        player2NameSpan.textContent = currentPlayer.username;
+        player2RankSpan.textContent = currentPlayer.rank;
+    }
+    
+    renderBoard();
+    updateTurnIndicator();
+    
+    // Initialiser et afficher le chat (sera géré dans chat.js)
 });
 
-// Masquer le chat lorsque la partie se termine
-socket.on('game-over', (data) => {
-    // Masquer le chat
-    gameChat.hide();
+socket.on('game-update', (data) => {
+    gameBoard = data.board;
+    currentTurn = data.currentTurn;
     
-    // Réinitialiser la référence de la partie
-    gameChat.updateGameId(null);
+    renderBoard();
+    updateTurnIndicator();
+});
+
+socket.on('game-over', (data) => {
+    gameInProgress = false;
+    gameContainer.classList.add('hidden');
+    gameOverContainer.classList.remove('hidden');
+    
+    // Update player info with new rank/elo
+    currentPlayer = data.player;
+    playerRankSpan.textContent = currentPlayer.rank;
+    playerEloSpan.textContent = currentPlayer.elo;
+    
+    // Display game result
+    if (data.winner) {
+        if (data.winner === currentPlayer.id) {
+            winnerMessageP.textContent = 'Vous avez gagné !';
+            winnerMessageP.className = 'win';
+        } else {
+            winnerMessageP.textContent = 'Vous avez perdu !';
+            winnerMessageP.className = 'lose';
+        }
+    } else {
+        winnerMessageP.textContent = 'Match nul !';
+        winnerMessageP.className = 'draw';
+    }
+    
+    // Display rank change
+    if (data.eloChange > 0) {
+        rankChangeP.textContent = `+${data.eloChange} points ELO`;
+        rankChangeP.className = 'positive';
+    } else if (data.eloChange < 0) {
+        rankChangeP.textContent = `${data.eloChange} points ELO`;
+        rankChangeP.className = 'negative';
+    } else {
+        rankChangeP.textContent = 'Aucun changement de points ELO';
+    }
 });
