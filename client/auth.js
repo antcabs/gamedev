@@ -27,7 +27,6 @@ const playerEloSpan = document.getElementById('player-elo');
 
 const logoutBtn = document.getElementById('logout-btn');
 
-
 // Variables globales
 let currentPlayer = null;
 
@@ -91,6 +90,36 @@ loginBtn.addEventListener('click', () => {
     socket.emit('login', { username, password });
 });
 
+// Gestionnaire d'événement pour la déconnexion
+logoutBtn.addEventListener('click', () => {
+    // Réinitialiser les variables de session
+    currentPlayer = null;
+    
+    // Émettre un événement de déconnexion au serveur
+    socket.emit('logout');
+    
+    // Masquer le lobby et afficher l'écran de connexion
+    lobbyContainer.classList.add('hidden');
+    loginContainer.classList.remove('hidden');
+    
+    // Réinitialiser les champs de formulaire
+    loginUsernameInput.value = '';
+    loginPasswordInput.value = '';
+    registerUsernameInput.value = '';
+    registerPasswordInput.value = '';
+    registerConfirmInput.value = '';
+    
+    // Réinitialiser les messages d'erreur
+    loginErrorDiv.textContent = '';
+    registerErrorDiv.textContent = '';
+    
+    // Afficher l'onglet de connexion
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabContents.forEach(t => t.classList.remove('active'));
+    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
+    document.getElementById('login-tab').classList.add('active');
+});
+
 // Écouteurs d'événements pour les réponses du serveur
 socket.on('register-success', (data) => {
     currentPlayer = data.player;
@@ -120,31 +149,6 @@ socket.on('login-error', (data) => {
     loginErrorDiv.textContent = data.message;
 });
 
-logoutBtn.addEventListener('click', () => {
-    // Réinitialiser les variables de session
-    currentPlayer = null;
-    
-    // Émettre un événement de déconnexion au serveur
-    socket.emit('logout');
-    
-    // Masquer le lobby et afficher l'écran de connexion
-    lobbyContainer.classList.add('hidden');
-    loginContainer.classList.remove('hidden');
-    
-    // Réinitialiser les champs de formulaire
-    loginUsernameInput.value = '';
-    loginPasswordInput.value = '';
-    registerUsernameInput.value = '';
-    registerPasswordInput.value = '';
-    registerConfirmInput.value = '';
-    
-    // Réinitialiser les messages d'erreur
-    loginErrorDiv.textContent = '';
-    registerErrorDiv.textContent = '';
-    
-    // Afficher l'onglet de connexion
-    tabBtns.forEach(b => b.classList.remove('active'));
-    tabContents.forEach(t => t.classList.remove('active'));
-    document.querySelector('.tab-btn[data-tab="login"]').classList.add('active');
-    document.getElementById('login-tab').classList.add('active');
+socket.on('logout-success', () => {
+    console.log('Déconnexion réussie');
 });
