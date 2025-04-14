@@ -160,30 +160,16 @@ io.on('connection', (socket) => {
     socket.on('send-chat', (data) => {
         const { gameId, message } = data;
         
-        console.log(`Réception d'un message chat:`, {
-            socketId: socket.id,
-            player: socket.player ? socket.player.username : 'inconnu',
-            gameId: gameId,
-            socketGameId: socket.game ? socket.game.id : 'aucun',
-            message: message
-        });
-        
-        // Vérifier que le joueur est connecté
-        if (!socket.player) {
-            console.log('Tentative d\'envoi de message sans être connecté');
+        // Vérifier que le joueur est dans une partie
+        if (!socket.player || !socket.game || socket.game.id !== gameId) {
+            console.log('Tentative d\'envoi de message hors partie');
             return;
         }
         
-        // Vérifier que l'ID de partie est valide
-        if (!gameId) {
-            console.log('Tentative d\'envoi de message sans ID de partie');
-            return;
-        }
+        console.log(`Chat: ${socket.player.username} dans le jeu ${gameId}: ${message}`);
         
         // Limiter la longueur du message pour éviter les abus
         const sanitizedMessage = message.trim().substring(0, 200);
-        
-        console.log(`Chat: ${socket.player.username} dans le jeu ${gameId}: ${sanitizedMessage}`);
         
         // Émettre le message à tous les joueurs dans la partie
         io.to(gameId).emit('chat-message', {

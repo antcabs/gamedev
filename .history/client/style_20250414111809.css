@@ -545,7 +545,8 @@ button:disabled {
 /* Pour le responsive */
 @media (max-width: 768px) {
     #game-container {
-        margin-right: 0;
+        width: 95%;
+        padding: 20px 10px;
     }
     
     .cell {
@@ -563,9 +564,7 @@ button:disabled {
     }
     
     #chat-container {
-        right: 15px;
-        bottom: -320px; /* En bas de l'écran sur les petits écrans */
-        width: 300px;
+        width: 250px;
         height: 250px;
     }
 }

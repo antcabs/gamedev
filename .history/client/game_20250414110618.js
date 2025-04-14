@@ -103,17 +103,6 @@ socket.on('match-found', (data) => {
     gameBoard = data.board;
     currentTurn = data.currentTurn;
     
-    // S'assurer que l'objet socket.game est correctement défini
-    // C'est important pour que le serveur puisse identifier la partie lors des communications
-    socket.game = {
-        id: data.id,
-        players: data.players,
-        board: data.board,
-        currentTurn: data.currentTurn
-    };
-    
-    console.log("Partie trouvée, ID:", data.id);
-    
     // Set player info
     const players = data.players;
     const opponent = players.find(p => p.id !== currentPlayer.id);

@@ -9,29 +9,9 @@
 <body>
     <div id="login-container">
         <h1>Puissance 4 Online</h1>
-        
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="login">Connexion</button>
-            <button class="tab-btn" data-tab="register">Inscription</button>
-        </div>
-        
-        <div id="login-tab" class="tab-content active">
-            <div class="form-group">
-                <input type="text" id="login-username" placeholder="Nom d'utilisateur">
-                <input type="password" id="login-password" placeholder="Mot de passe">
-                <button id="login-btn">Connexion</button>
-            </div>
-            <div id="login-error" class="error-message"></div>
-        </div>
-        
-        <div id="register-tab" class="tab-content">
-            <div class="form-group">
-                <input type="text" id="register-username" placeholder="Nom d'utilisateur">
-                <input type="password" id="register-password" placeholder="Mot de passe">
-                <input type="password" id="register-confirm-password" placeholder="Confirmer le mot de passe">
-                <button id="register-btn">S'inscrire</button>
-            </div>
-            <div id="register-error" class="error-message"></div>
+        <div class="form-group">
+            <input type="text" id="username" placeholder="Nom d'utilisateur">
+            <button id="login-btn">Connexion</button>
         </div>
     </div>
     
@@ -44,7 +24,6 @@
         </div>
         <button id="find-match-btn">Rechercher un match</button>
         <div id="match-status"></div>
-        <button id="logout-btn" class="logout-btn">Déconnexion</button>
     </div>
     
     <div id="game-container" class="hidden">
@@ -86,21 +65,8 @@
         <button id="back-to-lobby-btn">Retour au lobby</button>
     </div>
 
-    <!-- Template pour le chat -->
-    <template id="chat-template">
-        <div id="chat-container">
-            <div id="chat-messages"></div>
-            <div id="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Tapez votre message...">
-                <button id="chat-send">Envoyer</button>
-            </div>
-        </div>
-    </template>
-
     <script src="/socket.io/socket.io.js"></script>
-    <script src="auth.js"></script>
     <script src="game.js"></script>
-    <script src="chat.js"></script>
     <script src="matchmaking.js"></script>
 </body>
 </html>

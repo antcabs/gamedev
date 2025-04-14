@@ -203,7 +203,6 @@ button:disabled {
     text-align: center;
     width: 750px;
     margin-top: 20px;
-    margin-right: 320px; /* Ajouter une marge pour faire de la place au chat */
     transition: all 0.3s ease;
     position: relative;
 }
@@ -458,7 +457,7 @@ button:disabled {
 #chat-container {
     position: absolute;
     bottom: 15px;
-    right: -320px; /* Déplacé vers la droite pour ne pas empiéter sur le jeu */
+    right: 15px;
     width: 300px;
     height: 300px;
     background-color: white;
@@ -467,7 +466,6 @@ button:disabled {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 1000; /* S'assurer qu'il est au-dessus des autres éléments */
 }
 
 #chat-messages {
@@ -545,7 +543,8 @@ button:disabled {
 /* Pour le responsive */
 @media (max-width: 768px) {
     #game-container {
-        margin-right: 0;
+        width: 95%;
+        padding: 20px 10px;
     }
     
     .cell {
@@ -563,9 +562,7 @@ button:disabled {
     }
     
     #chat-container {
-        right: 15px;
-        bottom: -320px; /* En bas de l'écran sur les petits écrans */
-        width: 300px;
+        width: 250px;
         height: 250px;
     }
 }

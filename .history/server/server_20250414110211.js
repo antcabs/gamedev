@@ -79,26 +79,6 @@ io.on('connection', (socket) => {
             socket.emit('login-error', { message: "Erreur lors de la connexion" });
         }
     });
-    socket.on('logout', () => {
-        console.log(`Déconnexion de l'utilisateur: ${socket.player ? socket.player.username : 'inconnu'}`);
-        
-        try {
-            // Remove from matchmaking queue if present
-            if (socket.player) {
-                console.log(`Retrait de ${socket.player.username} de la file d'attente suite à déconnexion manuelle`);
-                matchmaking.removeFromQueue(socket);
-            }
-            
-            // Clean up player reference
-            socket.player = null;
-            
-            // Send confirmation
-            socket.emit('logout-success');
-            console.log(`Déconnexion réussie`);
-        } catch (error) {
-            console.error(`Erreur lors de la déconnexion:`, error);
-        }
-    });
     
     // Handle matchmaking
     socket.on('find-match', () => {
@@ -160,30 +140,16 @@ io.on('connection', (socket) => {
     socket.on('send-chat', (data) => {
         const { gameId, message } = data;
         
-        console.log(`Réception d'un message chat:`, {
-            socketId: socket.id,
-            player: socket.player ? socket.player.username : 'inconnu',
-            gameId: gameId,
-            socketGameId: socket.game ? socket.game.id : 'aucun',
-            message: message
-        });
-        
-        // Vérifier que le joueur est connecté
-        if (!socket.player) {
-            console.log('Tentative d\'envoi de message sans être connecté');
+        // Vérifier que le joueur est dans une partie
+        if (!socket.player || !socket.game || socket.game.id !== gameId) {
+            console.log('Tentative d\'envoi de message hors partie');
             return;
         }
         
-        // Vérifier que l'ID de partie est valide
-        if (!gameId) {
-            console.log('Tentative d\'envoi de message sans ID de partie');
-            return;
-        }
+        console.log(`Chat: ${socket.player.username} dans le jeu ${gameId}: ${message}`);
         
         // Limiter la longueur du message pour éviter les abus
         const sanitizedMessage = message.trim().substring(0, 200);
-        
-        console.log(`Chat: ${socket.player.username} dans le jeu ${gameId}: ${sanitizedMessage}`);
         
         // Émettre le message à tous les joueurs dans la partie
         io.to(gameId).emit('chat-message', {

@@ -545,7 +545,8 @@ button:disabled {
 /* Pour le responsive */
 @media (max-width: 768px) {
     #game-container {
-        margin-right: 0;
+        width: 95%;
+        padding: 20px 10px;
     }
     
     .cell {
