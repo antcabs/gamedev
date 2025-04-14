@@ -44,7 +44,62 @@
         </div>
         <button id="find-match-btn">Rechercher un match</button>
         <div id="match-status"></div>
+        <button id="view-history-btn" class="history-btn">Voir l'historique</button>
         <button id="logout-btn" class="logout-btn">Déconnexion</button>
+    </div>
+    
+    <div id="history-container" class="hidden">
+        <h2>Historique des parties</h2>
+        
+        <div class="history-actions">
+            <button id="back-to-lobby-from-history" class="back-btn">Retour au lobby</button>
+        </div>
+        
+        <div class="history-list">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Adversaire</th>
+                        <th>Résultat</th>
+                        <th>Points ELO</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    <!-- Les entrées d'historique seront ajoutées ici dynamiquement -->
+                </tbody>
+            </table>
+            
+            <div id="history-loading" class="loading-indicator">Chargement de l'historique...</div>
+            <div id="history-empty" class="empty-state hidden">Vous n'avez pas encore joué de partie.</div>
+        </div>
+    </div>
+    
+    <div id="game-replay-container" class="hidden">
+        <h2>Replay de la partie</h2>
+        
+        <div class="game-replay-info">
+            <div class="player player1">
+                <span id="replay-player1-name"></span>
+                <span id="replay-player1-rank"></span>
+            </div>
+            <div class="vs">VS</div>
+            <div class="player player2">
+                <span id="replay-player2-name"></span>
+                <span id="replay-player2-rank"></span>
+            </div>
+        </div>
+        
+        <div id="replay-result"></div>
+        
+        <div id="replay-board-container">
+            <div id="replay-board"></div>
+        </div>
+        
+        <div class="replay-controls">
+            <button id="back-to-history-btn" class="back-btn">Retour à l'historique</button>
+        </div>
     </div>
     
     <div id="game-container" class="hidden">
@@ -101,6 +156,7 @@
     <script src="auth.js"></script>
     <script src="game.js"></script>
     <script src="chat.js"></script>
+    <script src="history.js"></script>
     <script src="matchmaking.js"></script>
 </body>
 </html>
