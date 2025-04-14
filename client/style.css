@@ -608,3 +608,178 @@ button:disabled {
     max-width: 90%;
     text-align: center;
 }
+
+/* Ajoutez ces styles à votre fichier style.css */
+
+/* Conteneur d'historique */
+#history-container, #game-replay-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px var(--shadow-color);
+    text-align: center;
+    width: 800px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+#history-container h2, #game-replay-container h2 {
+    color: var(--board-color);
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+/* Table d'historique */
+.history-list {
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+#history-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+#history-table th, #history-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+#history-table th {
+    background-color: var(--board-color);
+    color: white;
+    font-weight: bold;
+}
+
+#history-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.result-win {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.result-loss {
+    color: var(--secondary-color);
+    font-weight: bold;
+}
+
+.result-draw {
+    color: #7f8c8d;
+    font-weight: bold;
+}
+
+.elo-positive {
+    color: #27ae60;
+}
+
+.elo-negative {
+    color: var(--secondary-color);
+}
+
+/* Bouton d'action dans l'historique */
+.view-replay-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-replay-btn:hover {
+    background-color: #2980b9;
+}
+
+/* États vides et chargement */
+.loading-indicator, .empty-state {
+    margin: 30px 0;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+/* Boutons de retour */
+.back-btn {
+    background-color: var(--board-color);
+    margin-bottom: 15px;
+}
+
+.back-btn:hover {
+    background-color: #1a2530;
+}
+
+/* Bouton d'historique dans le lobby */
+.history-btn {
+    margin-top: 15px;
+    background-color: #9b59b6;
+}
+
+.history-btn:hover {
+    background-color: #8e44ad;
+}
+
+/* Replay */
+#replay-board-container {
+    margin: 20px auto;
+    width: fit-content;
+}
+
+#replay-board {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 8px;
+    background-color: var(--board-color);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 8px 15px var(--shadow-color);
+    border: 5px solid var(--board-color);
+}
+
+#replay-result {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#replay-result.win {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #27ae60;
+}
+
+#replay-result.loss {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #c0392b;
+}
+
+#replay-result.draw {
+    background-color: rgba(52, 152, 219, 0.2);
+    color: #2980b9;
+}
+
+.game-replay-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 0 40px;
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+    #history-container, #game-replay-container {
+        width: 95%;
+        padding: 20px 10px;
+    }
+    
+    #history-table th, #history-table td {
+        padding: 8px 10px;
+        font-size: 14px;
+    }
+}
