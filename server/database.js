@@ -6,6 +6,9 @@ class Database {
         // In a real application, you would connect to a real database
         // This is a simple in-memory implementation for demo purposes
         this.players = new Map();
+        
+        // Ajout pour stocker l'historique des parties
+        this.games = new Map();
     }
     
     async getOrCreatePlayer(username) {
@@ -26,7 +29,8 @@ class Database {
                 gamesPlayed: 0,
                 wins: 0,
                 losses: 0,
-                draws: 0
+                draws: 0,
+                gameHistory: []
             };
             
             this.players.set(id, player);
@@ -61,6 +65,7 @@ class Database {
             wins: 0,
             losses: 0,
             draws: 0,
+            gameHistory: [],
             createdAt: new Date()
         };
         
@@ -143,6 +148,97 @@ class Database {
         
         // Return top players
         return players.slice(0, limit);
+    }
+    
+    // Enregistrer une partie terminée dans l'historique
+    saveGameToHistory(game, p1EloChange, p2EloChange) {
+        const timestamp = Date.now();
+        const gameId = game.id;
+        
+        // Créer un objet résumé de la partie
+        const gameRecord = {
+            id: gameId,
+            timestamp: timestamp,
+            date: new Date(timestamp).toLocaleString(),
+            players: [
+                {
+                    id: game.players[0].id,
+                    username: game.players[0].username,
+                    eloChange: p1EloChange
+                },
+                {
+                    id: game.players[1].id,
+                    username: game.players[1].username,
+                    eloChange: p2EloChange
+                }
+            ],
+            winner: game.winner || null,
+            isDraw: !game.winner && game.isGameOver,
+            // Stocker l'état final du plateau
+            finalBoard: JSON.parse(JSON.stringify(game.board))
+        };
+        
+        // Sauvegarder la partie dans la Map
+        this.games.set(gameId, gameRecord);
+        
+        // Aussi ajouter l'ID de la partie à chaque joueur pour faciliter la recherche
+        for (const player of game.players) {
+            const playerData = this.getPlayer(player.id);
+            if (playerData) {
+                if (!playerData.gameHistory) {
+                    playerData.gameHistory = [];
+                }
+                playerData.gameHistory.push(gameId);
+            }
+        }
+        
+        return gameRecord;
+    }
+    
+    // Obtenir l'historique d'un joueur
+    getPlayerGameHistory(playerId, limit = 10) {
+        const player = this.getPlayer(playerId);
+        if (!player || !player.gameHistory) {
+            return [];
+        }
+        
+        // Récupérer les dernières parties du joueur (les plus récentes d'abord)
+        const gameIds = player.gameHistory.slice().reverse().slice(0, limit);
+        
+        // Obtenir les détails des parties
+        const games = gameIds.map(gameId => {
+            const game = this.games.get(gameId);
+            if (game) {
+                // Ajouter des informations spécifiques au joueur
+                const playerInfo = game.players.find(p => p.id === playerId);
+                return {
+                    ...game,
+                    // Indique si le joueur a gagné ou perdu
+                    playerWon: game.winner === playerId,
+                    playerEloChange: playerInfo ? playerInfo.eloChange : 0,
+                    opponent: game.players.find(p => p.id !== playerId)
+                };
+            }
+            return null;
+        }).filter(game => game !== null);
+        
+        return games;
+    }
+    
+    // Obtenir les détails d'une partie spécifique
+    getGameDetails(gameId) {
+        return this.games.get(gameId) || null;
+    }
+    
+    // Obtenir les dernières parties globales
+    getRecentGames(limit = 10) {
+        const allGames = Array.from(this.games.values());
+        
+        // Trier par date (du plus récent au plus ancien)
+        allGames.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Limiter le nombre de résultats
+        return allGames.slice(0, limit);
     }
 }
 
