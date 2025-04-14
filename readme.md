@@ -90,6 +90,6 @@ Le système de classement est basé sur l'algorithme ELO, utilisé dans les éch
 
 Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou à soumettre une pull request.
 
-## Licence
 
-Ce projet est sous licence MIT.
+
+
