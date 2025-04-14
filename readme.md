@@ -44,7 +44,7 @@ npm run dev
 ```
 
 ## Structure du projet
-
+```
 |-- client/                     # Frontend
 |   |-- index.html              # Page HTML principale
 |   |-- style.css               # Styles CSS 
@@ -52,6 +52,7 @@ npm run dev
 |   |-- game.js                 # Logique du jeu côté client 
 |   |-- chat.js                 # Nouveau: Système de chat en partie
 |   |-- matchmaking.js          # Logique de matchmaking côté client
+|   |-- history.js              # Historique des partie
 |
 |-- server/                     # Backend
 |   |-- server.js               # Point d'entrée du serveur 
@@ -62,7 +63,7 @@ npm run dev
 |
 |-- package.json                # Configuration NPM
 |-- README.md                   # Documentation
-
+```
 
 ## Système de classement
 
